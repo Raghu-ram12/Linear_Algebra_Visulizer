@@ -4,6 +4,7 @@ class Vector:
     def __init__(self,components):
         self.components=components
         self.dim=len(components)
+   
     
 def add_vectors(a:Vector,b:Vector)->Vector:
 
@@ -52,4 +53,8 @@ def Vector_angle(a:Vector,b:Vector):
     mag_b=magnitude(b)
     return math.acos(d/(mag_a*mag_b))
 
- 
+def normalize(a:Vector)->Vector:
+
+    mag=magnitude(a)
+
+    return Vector([a.components[i]/mag for i in range(a.dim)]) 
