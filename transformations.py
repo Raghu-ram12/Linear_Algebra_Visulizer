@@ -28,6 +28,15 @@ def shear_vector_y(v:Vector,k:float)->Vector:
     return multiply_matrix_vector(v,shear_matrix)
 
 def reflect_on_x_axis(v:Vector)->Vector:
-    pass 
-def reflect_on_y_axis(v:Vector,):
-    pass
+
+    # takes reflection on x axis 
+    reflection_matrix=Matrix([1,0],[0,-1])
+    return multiply_matrix_vector(v,reflection_matrix)
+
+def reflect_on_y_axis(v:Vector):
+
+    #reflection on y axis 
+
+    reflection_matrix=Matrix([-1,0],[0,1])
+
+    return multiply_matrix_vector(v,reflection_matrix)
