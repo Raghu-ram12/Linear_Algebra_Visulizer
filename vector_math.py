@@ -1,9 +1,12 @@
 import math
 class Vector:
-
-    def __init__(self,components):
+    all_vectors=[]
+    def __init__(self,components,vector_id=None):
         self.components=components
         self.dim=len(components)
+        self.vector_id=vector_id 
+        self.color=None
+        Vector.all_vectors.append(self)
    
     
 def add_vectors(a:Vector,b:Vector)->Vector:

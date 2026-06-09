@@ -7,7 +7,11 @@ def rotate_vector(v: Vector,angle: float)->Vector:
     c=math.cos(math.radians(angle))
     s=math.sin(math.radians(angle))
     rotation_matrix=Matrix([[c,-s],[s,c]])
-    return multiply_matrix_vector(v,rotation_matrix)
+    rotated_vector= multiply_matrix_vector(v,rotation_matrix)
+    rotated_vector.vector_id=v.vector_id
+    rotated_vector.color=v.color 
+
+    return rotated_vector
 
 def scale_vector(v: Vector,sx:float,sy:float)->Vector:
 
