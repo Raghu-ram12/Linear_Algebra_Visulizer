@@ -27,21 +27,21 @@ def scale_vector(v: Vector, sx: float, sy: float) -> Vector:
 
 def sear_vector_x(v: Vector, k: float) -> Vector:
     # increment x by ky ie y=y+kx
-    shear_matrix = Matrix([1, k], [0, 1])
+    shear_matrix = Matrix([[1, k], [0, 1]])
 
     return multiply_matrix_vector(v, shear_matrix)
 
 
 def shear_vector_y(v: Vector, k: float) -> Vector:
     # increment y  by kx ie x=x+ky
-    shear_matrix = Matrix([1, 0], [k, 0])
+    shear_matrix = Matrix([[1, 0], [k, 1]])
     return multiply_matrix_vector(v, shear_matrix)
 
 
 def reflect_on_x_axis(v: Vector) -> Vector:
 
     # takes reflection on x axis
-    reflection_matrix = Matrix([1, 0], [0, -1])
+    reflection_matrix = Matrix([[1, 0], [0, -1]])
     return multiply_matrix_vector(v, reflection_matrix)
 
 
@@ -49,6 +49,6 @@ def reflect_on_y_axis(v: Vector):
 
     # reflection on y axis
 
-    reflection_matrix = Matrix([-1, 0], [0, 1])
+    reflection_matrix = Matrix([[-1, 0], [0, 1]])
 
     return multiply_matrix_vector(v, reflection_matrix)

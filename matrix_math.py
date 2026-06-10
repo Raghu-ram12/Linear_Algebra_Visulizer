@@ -9,7 +9,7 @@ class Matrix:
 
     def __init__(self, data):
 
-        self.data = [row for row in data]
+        self.data = [list(row) for row in data]
         self.rows = len(self.data)
         self.cols = len(self.data[0])
         self.shape = (self.rows, self.cols)
@@ -83,7 +83,7 @@ def matrix_mul(a: Matrix, b: Matrix) -> Matrix:
 
             for j in range(b.cols):
 
-                row.append(sum([a.data[i][k] + b.data[k][j] for k in range(a.cols)]))
+                row.append(sum([a.data[i][k] * b.data[k][j] for k in range(a.cols)]))
 
             result.append(row)
 
@@ -97,7 +97,7 @@ def matrix_mul(a: Matrix, b: Matrix) -> Matrix:
 
 def zero_matrix(n: int) -> Matrix:
 
-    return Matrix([0 for i in range(n)] for j in range(n))
+    return Matrix([[0 for _ in range(n)] for _ in range(n)])
 
 
 def identity_matrix(n: int) -> Matrix:
@@ -118,25 +118,28 @@ def identity_matrix(n: int) -> Matrix:
 
 
 def multiply_matrix_vector(v: Vector, m: Matrix) -> Vector:
-    if not v or not Matrix:
+    if v is None or m is None:
         print("invalid input")
-        return
-    if v.dim == m.cols:
+        return None
 
-        result = []
-
-        for i in range(m.rows):
-
-            result.append(
-                sum([round(v.components[j] * m.data[i][j], 4) for j in range(m.cols)])
-            )
-
-        return Vector(result)
-
-    else:
+    if v.dim != m.cols:
         raise ShapeMismatch(
             f"rows in vector {v.dim} not equal to columns in matrix {m.cols}"
         )
+
+    result = []
+
+    for i in range(m.rows):
+        result.append(
+            sum([round(v.components[j] * m.data[i][j], 4) for j in range(m.cols)])
+        )
+
+    transformed = Vector(result)
+    transformed.vector_id = v.vector_id
+    transformed.color = v.color
+    return transformed
+
+   
 
 
 def determinant_2x2(m: Matrix) -> float:
