@@ -24,6 +24,7 @@ selected_vector_idx = None
 vector_buttons = []
 button_idx = 0
 angle = 0
+draw_scale=DRAW_SCALE
 
 
 def world_to_screen(x, y, scale):
@@ -32,7 +33,7 @@ def world_to_screen(x, y, scale):
     return (x_screen, y_screen)
 
 
-screen_origin = world_to_screen(0, 0, DRAW_SCALE)
+screen_origin = world_to_screen(0, 0, draw_scale)
 
 
 def draw_coordinate_plane(canvas, scale):
@@ -87,7 +88,7 @@ def draw_coordinate_plane(canvas, scale):
 
 def update_vector_on_canvas(canvas, v):
     x, y = v.components[0], v.components[1]
-    x_screen, y_screen = world_to_screen(x, y, DRAW_SCALE)
+    x_screen, y_screen = world_to_screen(x, y, draw_scale)
     canvas.coords(
         v.vector_id,
         screen_origin[0],
@@ -102,7 +103,7 @@ def draw_vector(canvas: tk.Canvas, v: Vector):
 
     x = v.components[0]
     y = v.components[1]
-    vector_position = world_to_screen(x, y, DRAW_SCALE)
+    vector_position = world_to_screen(x, y, draw_scale)
 
     vector_id = canvas.create_line(
         screen_origin[0],
@@ -250,7 +251,7 @@ def animate_vector_rotation(canvas, target_angle, base_vector, start_components)
     rotated_vector = rotate_vector(temp_vector, angle)
 
     end_x, end_y = rotated_vector.components
-    sx, sy = world_to_screen(end_x, end_y, DRAW_SCALE)
+    sx, sy = world_to_screen(end_x, end_y, draw_scale)
 
     canvas.coords(
         base_vector.vector_id,
@@ -322,7 +323,6 @@ def get_scale_factor(root, canvas):
 
     y_label.pack(side="top")
     text_scale_y.pack(side="top")
-
     scale_btn = tk.Button(
         root,
         text="scale",
@@ -377,6 +377,22 @@ def get_reflection_axis(root,canvas):
 
     x_btn.config(command=lambda : display_vector_reflection(canvas,label,x_btn,y_btn,axis=1))
     y_btn.config(command=lambda : display_vector_reflection(canvas,label,x_btn,y_btn,axis=0))
+
+def update_slider_value(canvas, slider_value):
+    global draw_scale, screen_origin
+    
+    draw_scale = float(slider_value)
+    
+    # Update screen_origin for the new scale
+    screen_origin = world_to_screen(0, 0, draw_scale)
+    
+    # Clear and redraw everything
+    canvas.delete("all")
+    draw_coordinate_plane(canvas, draw_scale)
+    
+    # Re-draw all vectors using draw_vector
+    for v in Vector.all_vectors:
+        draw_vector(canvas, v)
 
 def main():
     root = tk.Tk()
@@ -439,7 +455,9 @@ def main():
         command=lambda: get_reflection_axis(root, canvas),
     )
     reflect_btn.pack(side="top", pady=5, padx=2)
-
+    zoom=tk.Scale(root,resolution=1,from_=5,to=50,orient=tk.HORIZONTAL)
+    zoom.config(command=lambda v:update_slider_value(canvas,v))
+    zoom.pack(side="top",padx=2,pady=5)
     root.mainloop()
 
 
