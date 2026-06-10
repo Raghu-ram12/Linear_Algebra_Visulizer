@@ -165,7 +165,7 @@ def create_vector(root, x_entry, y_entry, x_label, y_label, button, canvas):
 
 
 def add_vector_to_ui(root, canvas):
-    
+
     x_label = tk.Label(root, text="x component")
     x_label.pack(side="top", pady=5)
 
@@ -337,6 +337,46 @@ def get_scale_factor(root, canvas):
     )
     scale_btn.pack(side="top")
 
+def display_vector_reflection(canvas,label,x_btn,y_btn,axis=None):
+
+  
+    if axis==1:
+        
+        new_vector=reflect_on_x_axis(Vector.all_vectors[selected_vector_idx])
+
+        Vector.all_vectors[selected_vector_idx].components=new_vector.components
+
+        update_vector_on_canvas(canvas,new_vector)
+
+
+
+    elif axis == 0:
+
+        new_vector=reflect_on_y_axis(Vector.all_vectors[selected_vector_idx])
+
+        Vector.all_vectors[selected_vector_idx].components=new_vector.components
+
+        update_vector_on_canvas(canvas,new_vector)
+    
+    x_btn.pack_forget()
+    y_btn.pack_forget()
+    label.pack_forget()
+
+def get_reflection_axis(root,canvas):
+    
+    if selected_vector_idx ==None:
+        print("please select a vector")
+        return  
+    label=tk.Label(root,text="select axis")
+
+    x_btn=tk.Button(root,text="x-axis",width=200)
+    y_btn=tk.Button(root,text="y-axis",width=200)
+    label.pack(side="top")
+    x_btn.pack(padx=2,pady=5,side="top")
+    y_btn.pack(padx=2,pady=5,side="top")
+
+    x_btn.config(command=lambda : display_vector_reflection(canvas,label,x_btn,y_btn,axis=1))
+    y_btn.config(command=lambda : display_vector_reflection(canvas,label,x_btn,y_btn,axis=0))
 
 def main():
     root = tk.Tk()
@@ -386,6 +426,19 @@ def main():
         command=lambda: get_scale_factor(root, canvas),
     )
     scale_btn.pack(side="top", pady=5, padx=2)
+
+    reflect_btn = tk.Button(
+        root,
+        width=PANEL_WIDTH,
+        height=2,
+        text="reflect vector",
+        padx=50,
+        pady=10,
+        borderwidth=1,
+        relief="solid",
+        command=lambda: get_reflection_axis(root, canvas),
+    )
+    reflect_btn.pack(side="top", pady=5, padx=2)
 
     root.mainloop()
 
