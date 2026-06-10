@@ -44,25 +44,25 @@ def draw_coordinate_plane(canvas, scale):
 
     x = center_x
     while x >= 0:
-        canvas.create_line(x, offset, x, HEIGHT - offset, fill="light grey", width=1)
+        canvas.create_line(x, offset, x, HEIGHT - offset, fill="light grey", width=0.2)
         x -= scale
 
     x = center_x + scale
     while x <= canvas_width:
-        canvas.create_line(x, offset, x, HEIGHT - offset, fill="light grey", width=1)
+        canvas.create_line(x, offset, x, HEIGHT - offset, fill="light grey", width=0.2)
         x += scale
 
     y = center_y
     while y >= 0:
         canvas.create_line(
-            offset, y, canvas_width - offset, y, fill="light grey", width=1
+            offset, y, canvas_width - offset, y, fill="light grey", width=0.2
         )
         y -= scale
 
     y = center_y + scale
     while y <= HEIGHT:
         canvas.create_line(
-            offset, y, canvas_width - offset, y, fill="light grey", width=1
+            offset, y, canvas_width - offset, y, fill="light grey", width=0.2
         )
         y += scale
 
@@ -98,27 +98,33 @@ def update_vector_on_canvas(canvas, v):
     )
 
 
-def draw_vector(canvas: tk.Canvas, v: Vector):
+def draw_vector(canvas: tk.Canvas, v: Vector,color=None):
+
     global colour_index
 
     x = v.components[0]
     y = v.components[1]
     vector_position = world_to_screen(x, y, draw_scale)
 
+    if not color:
+        color_to_use = canvas_colors[colour_index]
+        v.color = canvas_colors[colour_index]
+        colour_index = (colour_index + 1) % len(canvas_colors)
+    else:
+        color_to_use = color
+        v.color = color
+
     vector_id = canvas.create_line(
         screen_origin[0],
         screen_origin[1],
         vector_position[0],
         vector_position[1],
-        fill=canvas_colors[colour_index],
+        fill=color_to_use,
         arrow=tk.LAST,
         width=2,
     )
 
-    v.color = canvas_colors[colour_index]
     v.vector_id = vector_id
-    colour_index = (colour_index + 1) % len(canvas_colors)
-
 
 def process_vector_buttons(button_id):
     global selected_vector_idx
@@ -379,20 +385,24 @@ def get_reflection_axis(root,canvas):
     y_btn.config(command=lambda : display_vector_reflection(canvas,label,x_btn,y_btn,axis=0))
 
 def update_slider_value(canvas, slider_value):
+    
     global draw_scale, screen_origin
     
     draw_scale = float(slider_value)
     
-    # Update screen_origin for the new scale
     screen_origin = world_to_screen(0, 0, draw_scale)
     
-    # Clear and redraw everything
+    colors=[]
+    for v in Vector.all_vectors:
+        colors.append(v.color)
+
     canvas.delete("all")
     draw_coordinate_plane(canvas, draw_scale)
-    
-    # Re-draw all vectors using draw_vector
-    for v in Vector.all_vectors:
-        draw_vector(canvas, v)
+   
+
+    for i,v in enumerate(Vector.all_vectors):
+        draw_vector(canvas, v,colors[i])
+        
 
 def main():
     root = tk.Tk()
@@ -458,6 +468,7 @@ def main():
     zoom=tk.Scale(root,resolution=1,from_=5,to=50,orient=tk.HORIZONTAL)
     zoom.config(command=lambda v:update_slider_value(canvas,v))
     zoom.pack(side="top",padx=2,pady=5)
+    zoom.set(20)
     root.mainloop()
 
 
