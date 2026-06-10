@@ -1,122 +1,144 @@
-from vector_math import Vector 
+from vector_math import Vector
+
 
 class ShapeMismatch(Exception):
     pass
+
+
 class Matrix:
 
-    def __init__(self,data):
+    def __init__(self, data):
 
-        self.data=[row for row in data]
-        self.rows=len(self.data)
-        self.cols=len(self.data[0])
-        self.shape=(self.rows,self.cols)
-    
-def add_matrices(a: Matrix,b: Matrix)->Matrix:
+        self.data = [row for row in data]
+        self.rows = len(self.data)
+        self.cols = len(self.data[0])
+        self.shape = (self.rows, self.cols)
+
+
+def add_matrices(a: Matrix, b: Matrix) -> Matrix:
 
     if a.shape == b.shape:
-        result=[]
+        result = []
 
         for i in range(a.rows):
-            row=[]
+            row = []
 
             for j in range(a.cols):
-                row.append(a.data[i][j]+b.data[i][j])
-            
+                row.append(a.data[i][j] + b.data[i][j])
+
             result.append(row)
-    
+
         return Matrix(result)
     else:
 
-        raise ShapeMismatch(f"matrix a is of shape {a.shape} Matrix b is of shape {b.shape}")
+        raise ShapeMismatch(
+            f"matrix a is of shape {a.shape} Matrix b is of shape {b.shape}"
+        )
 
-def sub_matrices(a: Matrix,b: Matrix)->Matrix:
+
+def sub_matrices(a: Matrix, b: Matrix) -> Matrix:
 
     if a.shape == b.shape:
-        result=[]
+        result = []
 
         for i in range(a.rows):
-            row=[]
+            row = []
 
             for j in range(a.cols):
-                row.append(a.data[i][j]-b.data[i][j])
-            
+                row.append(a.data[i][j] - b.data[i][j])
+
             result.append(row)
-    
+
         return Matrix(result)
-    
+
     else:
 
-        raise ShapeMismatch(f"matrix a is of shape {a.shape} Matrix b is of shape {b.shape}") 
+        raise ShapeMismatch(
+            f"matrix a is of shape {a.shape} Matrix b is of shape {b.shape}"
+        )
 
-def multiply_matrix_by_scaler(a:Matrix,k:float)->Matrix:
-    result=[]
+
+def multiply_matrix_by_scaler(a: Matrix, k: float) -> Matrix:
+    result = []
     for i in range(a.rows):
-        row=[]
+        row = []
         for j in range(a.cols):
 
-            row.append(a.data[i][j]*k)
-        
+            row.append(a.data[i][j] * k)
+
         result.append(row)
-    
+
     return Matrix(result)
-    
-def matrix_mul(a:Matrix,b: Matrix)->Matrix:
+
+
+def matrix_mul(a: Matrix, b: Matrix) -> Matrix:
 
     if a.cols == b.rows:
 
-        result=[]
+        result = []
 
         for i in range(a.rows):
 
-            row=[]
+            row = []
 
             for j in range(b.cols):
 
-                    row.append(sum([a.data[i][k]+b.data[k][j] for k in range(a.cols)]))
-            
+                row.append(sum([a.data[i][k] + b.data[k][j] for k in range(a.cols)]))
+
             result.append(row)
-    
+
         return Matrix(result)
-        
+
     else:
-        raise ShapeMismatch(" matrix multiplication not possible {a.shape} and {b.shape}")
+        raise ShapeMismatch(
+            " matrix multiplication not possible {a.shape} and {b.shape}"
+        )
 
 
-def zero_matrix(n:int)->Matrix:
+def zero_matrix(n: int) -> Matrix:
 
     return Matrix([0 for i in range(n)] for j in range(n))
 
-def identity_matrix(n:int)->Matrix:
-    
-    result=[]
-    for i in range(n):
-         row=[]
-         for j in range(n):
 
-            if i == j :
+def identity_matrix(n: int) -> Matrix:
+
+    result = []
+    for i in range(n):
+        row = []
+        for j in range(n):
+
+            if i == j:
                 row.append(1)
             else:
                 row.append(0)
-         
-         result.append(row)
-    
+
+        result.append(row)
+
     return Matrix(result)
 
-def multiply_matrix_vector(v: Vector,m: Matrix)->Vector:
-    
+
+def multiply_matrix_vector(v: Vector, m: Matrix) -> Vector:
+    if not v or not Matrix:
+        print("invalid input")
+        return
     if v.dim == m.cols:
-        
-        result=[]
+
+        result = []
 
         for i in range(m.rows):
 
-            result.append(sum([round(v.components[j]*m.data[i][j],4) for j in range(m.cols)]))
-        
+            result.append(
+                sum([round(v.components[j] * m.data[i][j], 4) for j in range(m.cols)])
+            )
+
         return Vector(result)
 
     else:
-        raise ShapeMismatch(f"rows in vector {v.dim} not equal to columns in matrix {m.cols}")
+        raise ShapeMismatch(
+            f"rows in vector {v.dim} not equal to columns in matrix {m.cols}"
+        )
 
-def determinant_2x2(m: Matrix)->float:
 
-    return (m.data[0][0]*m.data[1][1]-(m.data[1][0]*m.data[0][1]))
+def determinant_2x2(m: Matrix) -> float:
+
+    return m.data[0][0] * m.data[1][1] - (m.data[1][0] * m.data[0][1])

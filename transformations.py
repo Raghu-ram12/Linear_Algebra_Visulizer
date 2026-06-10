@@ -2,45 +2,53 @@ from vector_math import *
 from matrix_math import *
 import math
 
-def rotate_vector(v: Vector,angle: float)->Vector:
 
-    c=math.cos(math.radians(angle))
-    s=math.sin(math.radians(angle))
-    rotation_matrix=Matrix([[c,-s],[s,c]])
-    rotated_vector= multiply_matrix_vector(v,rotation_matrix)
-    rotated_vector.vector_id=v.vector_id
-    rotated_vector.color=v.color 
+def rotate_vector(v: Vector, angle: float) -> Vector:
+
+    c = math.cos(math.radians(angle))
+    s = math.sin(math.radians(angle))
+
+    rotation_matrix = Matrix([[c, -s], [s, c]])
+
+    rotated_vector = multiply_matrix_vector(v, rotation_matrix)
+
+    rotated_vector.vector_id = v.vector_id
+    rotated_vector.color = v.color
 
     return rotated_vector
 
-def scale_vector(v: Vector,sx:float,sy:float)->Vector:
 
-    scale_matrix=Matrix([sx,0],[0,sy])
+def scale_vector(v: Vector, sx: float, sy: float) -> Vector:
 
-    return multiply_matrix_vector(v,scale_matrix) 
+    scale_matrix = Matrix([[sx, 0], [0, sy]])
+
+    return multiply_matrix_vector(v, scale_matrix)
 
 
-def sear_vector_x(v:Vector,k: float)->Vector:
+def sear_vector_x(v: Vector, k: float) -> Vector:
     # increment x by ky ie y=y+kx
-    shear_matrix=Matrix([1,k],[0,1])
+    shear_matrix = Matrix([1, k], [0, 1])
 
-    return multiply_matrix_vector(v,shear_matrix) 
+    return multiply_matrix_vector(v, shear_matrix)
 
-def shear_vector_y(v:Vector,k:float)->Vector:
+
+def shear_vector_y(v: Vector, k: float) -> Vector:
     # increment y  by kx ie x=x+ky
-    shear_matrix=Matrix([1,0],[k,0]) 
-    return multiply_matrix_vector(v,shear_matrix)
+    shear_matrix = Matrix([1, 0], [k, 0])
+    return multiply_matrix_vector(v, shear_matrix)
 
-def reflect_on_x_axis(v:Vector)->Vector:
 
-    # takes reflection on x axis 
-    reflection_matrix=Matrix([1,0],[0,-1])
-    return multiply_matrix_vector(v,reflection_matrix)
+def reflect_on_x_axis(v: Vector) -> Vector:
 
-def reflect_on_y_axis(v:Vector):
+    # takes reflection on x axis
+    reflection_matrix = Matrix([1, 0], [0, -1])
+    return multiply_matrix_vector(v, reflection_matrix)
 
-    #reflection on y axis 
 
-    reflection_matrix=Matrix([-1,0],[0,1])
+def reflect_on_y_axis(v: Vector):
 
-    return multiply_matrix_vector(v,reflection_matrix)
+    # reflection on y axis
+
+    reflection_matrix = Matrix([-1, 0], [0, 1])
+
+    return multiply_matrix_vector(v, reflection_matrix)
