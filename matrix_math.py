@@ -91,7 +91,7 @@ def matrix_mul(a: Matrix, b: Matrix) -> Matrix:
 
     else:
         raise ShapeMismatch(
-            " matrix multiplication not possible {a.shape} and {b.shape}"
+            f"matrix multiplication not possible {a.shape} and {b.shape}"
         )
 
 

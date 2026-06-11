@@ -254,7 +254,7 @@ def animate_vector_rotation(canvas, target_angle, base_vector, start_components)
 
     angle += 2
 
-    temp_vector = Vector(start_components[:])
+    temp_vector = Vector(start_components[:],track=False)
     rotated_vector = rotate_vector(temp_vector, angle)
 
     end_x, end_y = rotated_vector.components
@@ -269,7 +269,7 @@ def animate_vector_rotation(canvas, target_angle, base_vector, start_components)
     )
 
     if angle >= target_angle:
-        final_temp = Vector(start_components[:])
+        final_temp = Vector(start_components[:],track=False)
         final_vector = rotate_vector(final_temp, target_angle)
 
         base_vector.components = final_vector.components[:]
@@ -308,28 +308,6 @@ def process_scale(canvas, text_scale_x, text_scale_y, x_label, y_label, scale_bt
     y_label.pack_forget()
     scale_btn.pack_forget()
 
-
-def animate_vector_rotation(canvas, target_angle, base_vector, start_components):
-    global angle
-
-    angle += 2
-
-    temp_vector = Vector(start_components[:])
-    rotated_vector = rotate_vector(temp_vector, angle)
-
-    end_x, end_y = rotated_vector.components
-    sx, sy = world_to_screen(end_x, end_y, draw_scale)
-
-    canvas.coords(base_vector.vector_id, screen_origin[0], screen_origin[1], sx, sy)
-
-    if angle >= target_angle:
-        final_temp = Vector(start_components[:])
-        final_vector = rotate_vector(final_temp, target_angle)
-        base_vector.components = final_vector.components[:]
-        update_vector_on_canvas(canvas, base_vector)
-        return
-
-    canvas.after(20, lambda: animate_vector_rotation(canvas, target_angle, base_vector, start_components))
 
 def get_scale_factor(root, canvas):
     text_scale_x = tk.Entry(root, width=PANEL_WIDTH)
@@ -419,25 +397,22 @@ def update_slider_value(canvas, slider_value):
         draw_vector(canvas, v, colors[i])
 
 def delete_vector(canvas):
-    global selected_vector_idx
+    global selected_vector_idx,button_idx
+
+    if selected_vector_idx is None:
+        print("no vector selected")
+        return
 
     canvas.delete(Vector.all_vectors[selected_vector_idx].vector_id)
-
-
     vector_buttons[selected_vector_idx].destroy()
     vector_buttons.pop(selected_vector_idx)
+    Vector.all_vectors.pop(selected_vector_idx) 
 
+    for i, btn in enumerate(vector_buttons):
+        btn.config(text=f"vector {i+1}", command=lambda idx=i: process_vector_buttons(idx))
 
-    Vector.all_vectors.pop(selected_vector_idx)
-
-    for i,btn in enumerate(vector_buttons):
-
-        btn.config(text=f"vector {i+1}",command=lambda idx=i:process_vector_buttons(idx))
-
-    selected_vector_idx=None
-
+    selected_vector_idx = None
     button_idx = len(Vector.all_vectors)
-
 
 def main():
     root = tk.Tk()

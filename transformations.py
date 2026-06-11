@@ -25,7 +25,7 @@ def scale_vector(v: Vector, sx: float, sy: float) -> Vector:
     return multiply_matrix_vector(v, scale_matrix)
 
 
-def sear_vector_x(v: Vector, k: float) -> Vector:
+def shear_vector_x(v: Vector, k: float) -> Vector:
     # increment x by ky ie y=y+kx
     shear_matrix = Matrix([[1, k], [0, 1]])
 

@@ -48,7 +48,7 @@ def magnitude(a: Vector) -> float:
 
 def dot_product(a: Vector, b: Vector) -> float:
 
-    min_len = max(a.dim, b.dim)
+    min_len = min(a.dim, b.dim)
     result = []
     for i in range(min_len):
         result.append(a.components[i] * b.components[i])
