@@ -134,7 +134,7 @@ def multiply_matrix_vector(v: Vector, m: Matrix) -> Vector:
             sum([round(v.components[j] * m.data[i][j], 4) for j in range(m.cols)])
         )
 
-    transformed = Vector(result)
+    transformed = Vector(result,track=False)
     transformed.vector_id = v.vector_id
     transformed.color = v.color
     return transformed

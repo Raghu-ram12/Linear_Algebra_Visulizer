@@ -3,7 +3,7 @@ from transformations import *
 
 HEIGHT = 800
 WIDTH = 1400
-PANEL_WIDTH = 400
+PANEL_WIDTH = 200
 DRAW_SCALE = 20
 
 canvas_colors = [
@@ -24,7 +24,7 @@ selected_vector_idx = None
 vector_buttons = []
 button_idx = 0
 angle = 0
-draw_scale=DRAW_SCALE
+draw_scale = DRAW_SCALE
 
 
 def world_to_screen(x, y, scale):
@@ -98,7 +98,7 @@ def update_vector_on_canvas(canvas, v):
     )
 
 
-def draw_vector(canvas: tk.Canvas, v: Vector,color=None):
+def draw_vector(canvas: tk.Canvas, v: Vector, color=None):
 
     global colour_index
 
@@ -125,6 +125,7 @@ def draw_vector(canvas: tk.Canvas, v: Vector,color=None):
     )
 
     v.vector_id = vector_id
+
 
 def process_vector_buttons(button_id):
     global selected_vector_idx
@@ -238,7 +239,7 @@ def start_rotation(canvas, entry_angle, label, rotate_btn):
     rotate_btn.pack_forget()
 
     base_vector = Vector.all_vectors[selected_vector_idx]
-    start_components = base_vector.components[:]  # snapshot of current state
+    start_components = base_vector.components[:]
 
     animate_vector_rotation(
         canvas=canvas,
@@ -271,7 +272,6 @@ def animate_vector_rotation(canvas, target_angle, base_vector, start_components)
         final_temp = Vector(start_components[:])
         final_vector = rotate_vector(final_temp, target_angle)
 
-        # update the SAME original vector object
         base_vector.components = final_vector.components[:]
 
         update_vector_on_canvas(canvas, base_vector)
@@ -298,16 +298,8 @@ def process_scale(canvas, text_scale_x, text_scale_y, x_label, y_label, scale_bt
         return
 
     selected_vector = Vector.all_vectors[selected_vector_idx]
-
-    scaled_vector = scale_vector(
-        selected_vector,
-        sx=float(x_scale),
-        sy=float(y_scale),
-    )
-
-    # update same vector object so future rotations use scaled values
+    scaled_vector = scale_vector(selected_vector, sx=float(x_scale), sy=float(y_scale))
     selected_vector.components = scaled_vector.components[:]
-
     update_vector_on_canvas(canvas, selected_vector)
 
     text_scale_x.pack_forget()
@@ -316,6 +308,30 @@ def process_scale(canvas, text_scale_x, text_scale_y, x_label, y_label, scale_bt
     y_label.pack_forget()
     scale_btn.pack_forget()
 
+
+def animate_vector_rotation(canvas, target_angle, base_vector, start_components):
+    global angle
+
+    angle += 2
+
+    temp_vector = Vector(start_components[:])
+    rotated_vector = rotate_vector(temp_vector, angle)
+    Vector.all_vectors.remove(temp_vector)    # remove orphan
+    Vector.all_vectors.remove(rotated_vector) # remove orphan
+
+    end_x, end_y = rotated_vector.components
+    sx, sy = world_to_screen(end_x, end_y, draw_scale)
+
+    canvas.coords(base_vector.vector_id, screen_origin[0], screen_origin[1], sx, sy)
+
+    if angle >= target_angle:
+        final_temp = Vector(start_components[:])
+        final_vector = rotate_vector(final_temp, target_angle)
+        base_vector.components = final_vector.components[:]
+        update_vector_on_canvas(canvas, base_vector)
+        return
+
+    canvas.after(20, lambda: animate_vector_rotation(canvas, target_angle, base_vector, start_components))
 
 def get_scale_factor(root, canvas):
     text_scale_x = tk.Entry(root, width=PANEL_WIDTH)
@@ -343,66 +359,87 @@ def get_scale_factor(root, canvas):
     )
     scale_btn.pack(side="top")
 
-def display_vector_reflection(canvas,label,x_btn,y_btn,axis=None):
 
-  
-    if axis==1:
-        
-        new_vector=reflect_on_x_axis(Vector.all_vectors[selected_vector_idx])
+def display_vector_reflection(canvas, label, x_btn, y_btn, axis=None):
+    if selected_vector_idx is None:
+        print("please select a vector")
+        return
 
-        Vector.all_vectors[selected_vector_idx].components=new_vector.components
+    selected_vector = Vector.all_vectors[selected_vector_idx]
 
-        update_vector_on_canvas(canvas,new_vector)
-
-
+    if axis == 1:
+        reflected = reflect_on_x_axis(selected_vector)
+        selected_vector.components = reflected.components[:]
+       
 
     elif axis == 0:
+        reflected = reflect_on_y_axis(selected_vector)
+        selected_vector.components = reflected.components[:]
+       
+    update_vector_on_canvas(canvas, selected_vector)
 
-        new_vector=reflect_on_y_axis(Vector.all_vectors[selected_vector_idx])
-
-        Vector.all_vectors[selected_vector_idx].components=new_vector.components
-
-        update_vector_on_canvas(canvas,new_vector)
-    
     x_btn.pack_forget()
     y_btn.pack_forget()
     label.pack_forget()
 
-def get_reflection_axis(root,canvas):
-    
-    if selected_vector_idx ==None:
+def get_reflection_axis(root, canvas):
+
+    if selected_vector_idx is None:
         print("please select a vector")
-        return  
-    label=tk.Label(root,text="select axis")
+        return
 
-    x_btn=tk.Button(root,text="x-axis",width=200)
-    y_btn=tk.Button(root,text="y-axis",width=200)
+    label = tk.Label(root, text="select axis")
+    x_btn = tk.Button(root, text="x-axis", width=200)
+    y_btn = tk.Button(root, text="y-axis", width=200)
+
     label.pack(side="top")
-    x_btn.pack(padx=2,pady=5,side="top")
-    y_btn.pack(padx=2,pady=5,side="top")
+    x_btn.pack(padx=2, pady=5, side="top")
+    y_btn.pack(padx=2, pady=5, side="top")
 
-    x_btn.config(command=lambda : display_vector_reflection(canvas,label,x_btn,y_btn,axis=1))
-    y_btn.config(command=lambda : display_vector_reflection(canvas,label,x_btn,y_btn,axis=0))
+    x_btn.config(command=lambda: display_vector_reflection(canvas, label, x_btn, y_btn, axis=1))
+    y_btn.config(command=lambda: display_vector_reflection(canvas, label, x_btn, y_btn, axis=0))
+
 
 def update_slider_value(canvas, slider_value):
-    
+
     global draw_scale, screen_origin
-    
+
     draw_scale = float(slider_value)
-    
+
     screen_origin = world_to_screen(0, 0, draw_scale)
-    
-    colors=[]
+
+    colors = []
+
     for v in Vector.all_vectors:
         colors.append(v.color)
 
     canvas.delete("all")
-    draw_coordinate_plane(canvas, draw_scale)
-   
 
-    for i,v in enumerate(Vector.all_vectors):
-        draw_vector(canvas, v,colors[i])
-        
+    draw_coordinate_plane(canvas, draw_scale)
+
+    for i, v in enumerate(Vector.all_vectors):
+        draw_vector(canvas, v, colors[i])
+
+def delete_vector(canvas):
+    global selected_vector_idx
+
+    canvas.delete(Vector.all_vectors[selected_vector_idx].vector_id)
+
+
+    vector_buttons[selected_vector_idx].destroy()
+    vector_buttons.pop(selected_vector_idx)
+
+
+    Vector.all_vectors.pop(selected_vector_idx)
+
+    for i,btn in enumerate(vector_buttons):
+
+        btn.config(text=f"vector {i+1}",command=lambda idx=i:process_vector_buttons(idx))
+
+    selected_vector_idx=None
+
+    button_idx = len(Vector.all_vectors)
+
 
 def main():
     root = tk.Tk()
@@ -418,7 +455,7 @@ def main():
         root,
         width=PANEL_WIDTH,
         height=2,
-        text="Add vector",
+        text="create vector",
         padx=50,
         pady=10,
         borderwidth=1,
@@ -426,6 +463,20 @@ def main():
         command=lambda: add_vector_to_ui(root, canvas),
     )
     add.pack(side="top", pady=5, padx=2)
+
+    delete_btn = tk.Button(
+        root,
+        width=PANEL_WIDTH,
+        height=2,
+        text="Delete vector",
+        padx=50,
+        pady=10,
+        borderwidth=1,
+        relief="solid",
+        command=lambda: delete_vector(canvas),
+    ) 
+
+    delete_btn.pack(side="top", pady=5, padx=2)
 
     rotate_btn = tk.Button(
         root,
@@ -457,7 +508,7 @@ def main():
         root,
         width=PANEL_WIDTH,
         height=2,
-        text="reflect vector",
+        text="Reflect vector",
         padx=50,
         pady=10,
         borderwidth=1,
@@ -465,10 +516,11 @@ def main():
         command=lambda: get_reflection_axis(root, canvas),
     )
     reflect_btn.pack(side="top", pady=5, padx=2)
-    zoom=tk.Scale(root,resolution=1,from_=5,to=50,orient=tk.HORIZONTAL)
-    zoom.config(command=lambda v:update_slider_value(canvas,v))
-    zoom.pack(side="top",padx=2,pady=5)
+    zoom = tk.Scale(root, resolution=1, from_=5, to=50, orient=tk.HORIZONTAL)
+    zoom.config(command=lambda v: update_slider_value(canvas, v))
+    zoom.pack(side="top", padx=2, pady=5)
     zoom.set(20)
+
     root.mainloop()
 
 

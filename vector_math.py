@@ -3,12 +3,13 @@ import math
 class Vector:
     all_vectors = []
 
-    def __init__(self, components, vector_id=None):
+    def __init__(self, components, vector_id=None,track=True):
         self.components = components
         self.dim = len(components)
         self.vector_id = vector_id
         self.color = "white"
-        Vector.all_vectors.append(self)
+        if track:
+            Vector.all_vectors.append(self)
 
 
 def add_vectors(a: Vector, b: Vector) -> Vector:
