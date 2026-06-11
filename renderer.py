@@ -316,8 +316,6 @@ def animate_vector_rotation(canvas, target_angle, base_vector, start_components)
 
     temp_vector = Vector(start_components[:])
     rotated_vector = rotate_vector(temp_vector, angle)
-    Vector.all_vectors.remove(temp_vector)    # remove orphan
-    Vector.all_vectors.remove(rotated_vector) # remove orphan
 
     end_x, end_y = rotated_vector.components
     sx, sy = world_to_screen(end_x, end_y, draw_scale)
