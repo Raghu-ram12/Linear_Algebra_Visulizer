@@ -1,0 +1,320 @@
+
+from renderer import * 
+
+def get_vector_components(root, canvas,vector_list):
+
+    x_label = tk.Label(root, text="x component")
+    x_label.pack(side="top", pady=5)
+
+    x_text = tk.Entry(root, width=PANEL_WIDTH)
+    x_text.pack(side="top", pady=5)
+
+    y_label = tk.Label(root, text="y component")
+    y_label.pack(side="top", pady=5)
+
+    y_text = tk.Entry(root, width=PANEL_WIDTH)
+    y_text.pack(side="top", pady=5)
+
+    submit_btn = tk.Button(
+        root,
+        width=10,
+        borderwidth=1,
+        relief="solid",
+        padx=2,
+        pady=2,
+        text="submit",
+        command=lambda: create_vector(
+            root, x_text, y_text, x_label, y_label, submit_btn, canvas,vector_list
+        ),
+    )
+    submit_btn.pack(side="top", pady=5) 
+
+
+def create_vector(root, x_entry, y_entry, x_label, y_label, button, canvas,vector_list):
+
+    global button_idx,colour_index
+
+    x = x_entry.get().strip()
+    y = y_entry.get().strip()
+
+    if not x or not y:
+        return
+
+    x_entry.pack_forget()
+    y_entry.pack_forget()
+    x_label.pack_forget()
+    y_label.pack_forget()
+    button.pack_forget()
+
+    v = Vector([float(x), float(y)])
+
+
+    vector_list.insert(tk.END,f"Vector {button_idx +1}")
+    
+    color_to_use=canvas_colors[colour_index]
+
+    colour_index=(colour_index+1)%len(canvas_colors)
+
+    vector_list.itemconfig(tk.END,fg=color_to_use)
+    v.color=color_to_use
+
+    button_idx += 1
+    
+    draw_vector_on_canvas(canvas, v, color_to_use) 
+
+def get_rotation_angle(root, canvas,vector_list):
+    label = tk.Label(root, text="angle of rotation")
+    label.pack(side="top", pady=5)
+
+    entry_angle = tk.Entry(root, width=PANEL_WIDTH)
+    entry_angle.pack(side="top")
+
+    rotate_btn = tk.Button(
+        root,
+        text="rotate",
+        width=PANEL_WIDTH,
+        relief="solid",
+        borderwidth=1,
+        padx=2,
+        pady=2,
+    )
+    rotate_btn.config(
+        command=lambda: start_rotation(canvas, entry_angle, label, rotate_btn,vector_list)
+    )
+    rotate_btn.pack(side="top", pady=5)
+
+
+def start_rotation(canvas, entry_angle, label, rotate_btn,vector_list):
+
+
+    text_angle = entry_angle.get().strip()
+
+    selections =vector_list.curselection()
+    entry_angle.pack_forget()
+    label.pack_forget()
+    rotate_btn.pack_forget()
+    print(selections)
+    for idx in selections:
+
+        angle = 0
+        base_vector = Vector.all_vectors[idx]
+        start_components = base_vector.components[:]
+        print(id(base_vector), start_components)  
+
+        animate_vector_rotation(
+        canvas=canvas,
+        target_angle=float(text_angle),
+        base_vector=base_vector,
+        start_components=start_components,
+        angle=0
+     )
+
+
+def animate_vector_rotation(canvas, target_angle, base_vector, start_components,angle):
+    
+    angle += 2
+
+    temp_vector = Vector(start_components[:],track=False)
+    rotated_vector = rotate_vector(temp_vector, angle)
+
+    end_x, end_y = rotated_vector.components
+    sx, sy = world_to_screen(end_x, end_y, draw_scale)
+
+    canvas.coords(
+        base_vector.vector_id,
+        screen_origin[0],
+        screen_origin[1],
+        sx,
+        sy,
+    )
+
+    if angle >= target_angle:
+        final_temp = Vector(start_components[:],track=False)
+        final_vector = rotate_vector(final_temp, target_angle)
+
+        base_vector.components = final_vector.components[:]
+
+        update_vector_on_canvas(canvas, base_vector)
+        return
+
+    canvas.after(
+    20,
+    lambda bv=base_vector, sc=start_components, a=angle: animate_vector_rotation(
+        canvas, target_angle, bv, sc, a
+    ),
+)
+
+def process_scale(canvas, text_scale_x, text_scale_y, x_label, y_label, scale_btn,vector_list):
+   
+
+    x_scale = text_scale_x.get().strip()
+    y_scale = text_scale_y.get().strip()
+
+    if not x_scale or not y_scale:
+        print("Enter both scale values")
+        return
+    
+    text_scale_x.pack_forget()
+    text_scale_y.pack_forget()
+    x_label.pack_forget()
+    y_label.pack_forget()
+    scale_btn.pack_forget()
+
+
+    for idx in vector_list.curselection():
+
+        selected_vector = Vector.all_vectors[idx]
+        scaled_vector = scale_vector(selected_vector, sx=float(x_scale), sy=float(y_scale))
+        selected_vector.components = scaled_vector.components[:]
+        update_vector_on_canvas(canvas, selected_vector)
+
+
+def get_scale_factor(root, canvas,vector_list):
+
+    text_scale_x = tk.Entry(root, width=PANEL_WIDTH)
+    x_label = tk.Label(root, text="x scale")
+
+    text_scale_y = tk.Entry(root, width=PANEL_WIDTH)
+    y_label = tk.Label(root, text="y scale")
+
+    x_label.pack(side="top")
+    text_scale_x.pack(side="top")
+
+    y_label.pack(side="top")
+    text_scale_y.pack(side="top")
+    scale_btn = tk.Button(
+        root,
+        text="scale",
+        width=PANEL_WIDTH,
+        relief="solid",
+        borderwidth=1,
+        padx=2,
+        pady=2,
+        command=lambda: process_scale(
+            canvas, text_scale_x, text_scale_y, x_label, y_label, scale_btn,vector_list
+        ),
+    )
+    scale_btn.pack(side="top")
+
+
+def display_vector_reflection(canvas, label, x_btn, y_btn,vector_list,axis=None):
+
+    selections=vector_list.curselection()
+
+    if len(selections)==0:
+        print("please select a vector")
+        return
+
+    x_btn.pack_forget()
+    y_btn.pack_forget()
+    label.pack_forget()
+
+    selected_vector = Vector.all_vectors[idx]
+
+    for idx in selections:
+
+        if axis == 1:
+            reflected = reflect_on_x_axis(selected_vector)
+            selected_vector.components = reflected.components[:]
+        
+
+        elif axis == 0:
+            reflected = reflect_on_y_axis(selected_vector)
+            selected_vector.components = reflected.components[:]
+        
+        update_vector_on_canvas(canvas, selected_vector)
+
+       
+
+def get_reflection_axis(root, canvas,vector_list):
+
+    if selected_vector_idx is None:
+        print("please select a vector")
+        return
+
+    label = tk.Label(root, text="select axis")
+    x_btn = tk.Button(root, text="x-axis", width=200)
+    y_btn = tk.Button(root, text="y-axis", width=200)
+
+    label.pack(side="top")
+    x_btn.pack(padx=2, pady=5, side="top")
+    y_btn.pack(padx=2, pady=5, side="top")
+
+    x_btn.config(command=lambda: display_vector_reflection(canvas, label, x_btn, y_btn,vector_list, axis=1))
+    y_btn.config(command=lambda: display_vector_reflection(canvas, label, x_btn, y_btn,vector_list, axis=0))
+
+
+def process_input_matrix(canvas,root,matrix,transform_btn,vector_list):
+    
+    given_matrix=[] 
+    for i in range(2):
+        row=[]
+        for j in range(2):
+           row.append(float(matrix[i][j].get()))
+        given_matrix.append(row) 
+    
+    given_matrix=Matrix(given_matrix)
+    
+    matrix[0][0].master.destroy()
+
+    transform_btn.pack_forget()
+    selections=vector_list.curselection()
+
+    if len(selections)==0:
+        print("please select a vector")
+        return 
+
+    for idx in selections:
+
+        transformed_vector=multiply_matrix_vector(Vector.all_vectors[idx],given_matrix)
+        
+        Vector.all_vectors[idx].components=transformed_vector.components[:]
+
+        update_vector_on_canvas(canvas,Vector.all_vectors[idx])
+
+def get_transform_matrix(root,canvas,vector_list):
+
+    # Create a separate frame for the matrix to use grid geometry manager
+
+    matrix_frame = tk.Frame(root, bg="gray")
+    matrix_frame.pack(side="top", padx=5, pady=5)
+
+    matrix=[]
+
+    for i in range(2):
+        row=[]
+        for j in range(2):
+
+            element=tk.Entry(matrix_frame,width=5,justify="center")
+
+            element.grid(row=i,column=j, padx=10, pady=5)
+
+            row.append(element)
+
+        matrix.append(row)
+
+    transform_btn=tk.Button(matrix_frame,width=5,text="Enter")
+    transform_btn.grid(row=2, column=0, columnspan=2, pady=5)
+    transform_btn.config(command= lambda m=matrix: process_input_matrix(canvas,root,m,transform_btn,vector_list)) 
+
+def delete_vector(canvas, vector_list):
+    global button_idx
+
+    selections = vector_list.curselection()
+
+    if len(selections) == 0:
+        print("no vector selected")
+        return
+
+    for idx in selections[::-1]:
+        canvas.delete(Vector.all_vectors[idx].vector_id)
+        vector_list.delete(idx)
+        Vector.all_vectors.pop(idx)
+
+    
+    for i, v in enumerate(Vector.all_vectors):
+        vector_list.delete(i)
+        vector_list.insert(i, f"Vector {i + 1}")
+        vector_list.itemconfig(i, fg=v.color)
+
+    button_idx = len(Vector.all_vectors)
