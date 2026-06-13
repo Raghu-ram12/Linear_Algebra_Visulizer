@@ -1,5 +1,10 @@
 
 from renderer import * 
+from tkinter import messagebox 
+
+def trigger_error():
+
+        messagebox.showerror("Value Error","Invalid input! please a number")
 
 def get_vector_components(root, canvas,vector_list):
 
@@ -45,9 +50,15 @@ def create_vector(root, x_entry, y_entry, x_label, y_label, button, canvas,vecto
     x_label.pack_forget()
     y_label.pack_forget()
     button.pack_forget()
+    
+    try :
 
-    v = Vector([float(x), float(y)])
+       v = Vector([float(x),float(y)])
 
+    except ValueError:
+
+        trigger_error()
+        return
 
     vector_list.insert(tk.END,f"Vector {button_idx +1}")
     
@@ -63,6 +74,7 @@ def create_vector(root, x_entry, y_entry, x_label, y_label, button, canvas,vecto
     draw_vector_on_canvas(canvas, v, color_to_use) 
 
 def get_rotation_angle(root, canvas,vector_list):
+
     label = tk.Label(root, text="angle of rotation")
     label.pack(side="top", pady=5)
 
@@ -93,7 +105,17 @@ def start_rotation(canvas, entry_angle, label, rotate_btn,vector_list):
     entry_angle.pack_forget()
     label.pack_forget()
     rotate_btn.pack_forget()
-    print(selections)
+    
+    try:
+
+        input_angle=float(text_angle)
+
+    except ValueError:
+        
+        trigger_error()
+        return
+
+
     for idx in selections:
 
         angle = 0
@@ -103,7 +125,7 @@ def start_rotation(canvas, entry_angle, label, rotate_btn,vector_list):
 
         animate_vector_rotation(
         canvas=canvas,
-        target_angle=float(text_angle),
+        target_angle=validate_input(input_angle),
         base_vector=base_vector,
         start_components=start_components,
         angle=0
@@ -145,7 +167,8 @@ def animate_vector_rotation(canvas, target_angle, base_vector, start_components,
 )
 
 def process_scale(canvas, text_scale_x, text_scale_y, x_label, y_label, scale_btn,vector_list):
-   
+    
+    selections=vector_list.curselection()
 
     x_scale = text_scale_x.get().strip()
     y_scale = text_scale_y.get().strip()
@@ -159,12 +182,24 @@ def process_scale(canvas, text_scale_x, text_scale_y, x_label, y_label, scale_bt
     x_label.pack_forget()
     y_label.pack_forget()
     scale_btn.pack_forget()
+    
+    try:
+        x_scale=float(x_scale)
+        y_scale=float(y_scale)
 
+    except ValueError:
 
-    for idx in vector_list.curselection():
+        trigger_error()
+        return
+    
+    if len(selections)==0:
+        messagebox.showerror(message="Please select at least 1 Vector")
+        return
+        
+    for idx in selections:
 
         selected_vector = Vector.all_vectors[idx]
-        scaled_vector = scale_vector(selected_vector, sx=float(x_scale), sy=float(y_scale))
+        scaled_vector = scale_vector(selected_vector, sx=x_scale, sy=y_scale)
         selected_vector.components = scaled_vector.components[:]
         update_vector_on_canvas(canvas, selected_vector)
 
@@ -202,16 +237,18 @@ def display_vector_reflection(canvas, label, x_btn, y_btn,vector_list,axis=None)
     selections=vector_list.curselection()
 
     if len(selections)==0:
-        print("please select a vector")
+        messagebox.showerror(message="Please select at least 1 Vector")
         return
 
     x_btn.pack_forget()
     y_btn.pack_forget()
     label.pack_forget()
 
-    selected_vector = Vector.all_vectors[idx]
+   
 
     for idx in selections:
+
+        selected_vector = Vector.all_vectors[idx]
 
         if axis == 1:
             reflected = reflect_on_x_axis(selected_vector)
@@ -228,10 +265,6 @@ def display_vector_reflection(canvas, label, x_btn, y_btn,vector_list,axis=None)
 
 def get_reflection_axis(root, canvas,vector_list):
 
-    if selected_vector_idx is None:
-        print("please select a vector")
-        return
-
     label = tk.Label(root, text="select axis")
     x_btn = tk.Button(root, text="x-axis", width=200)
     y_btn = tk.Button(root, text="y-axis", width=200)
@@ -247,13 +280,18 @@ def get_reflection_axis(root, canvas,vector_list):
 def process_input_matrix(canvas,root,matrix,transform_btn,vector_list):
     
     given_matrix=[] 
-    for i in range(2):
-        row=[]
-        for j in range(2):
-           row.append(float(matrix[i][j].get()))
-        given_matrix.append(row) 
+    try:
+        for i in range(2):
+            row=[]
+            for j in range(2):
+                row.append(float(matrix[i][j].get()))
+                given_matrix.append(row) 
     
-    given_matrix=Matrix(given_matrix)
+        given_matrix=Matrix(given_matrix)
+
+    except ValueError:
+        trigger_error()
+        return
     
     matrix[0][0].master.destroy()
 
@@ -261,7 +299,7 @@ def process_input_matrix(canvas,root,matrix,transform_btn,vector_list):
     selections=vector_list.curselection()
 
     if len(selections)==0:
-        print("please select a vector")
+        messagebox.showerror(message="Please select at least 1 Vector")
         return 
 
     for idx in selections:
@@ -303,7 +341,7 @@ def delete_vector(canvas, vector_list):
     selections = vector_list.curselection()
 
     if len(selections) == 0:
-        print("no vector selected")
+        messagebox.showerror(message="Please select at least 1 Vector")
         return
 
     for idx in selections[::-1]:
