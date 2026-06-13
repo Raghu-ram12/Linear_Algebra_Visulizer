@@ -19,7 +19,7 @@ def main():
         pady=10,
         borderwidth=1,
         relief="solid",
-        command=lambda: add_vector_to_ui(root, canvas),
+        command=lambda: get_vector_components(root, canvas),
     )
     add.pack(side="top", pady=5, padx=2)
 
@@ -75,6 +75,20 @@ def main():
         command=lambda: get_reflection_axis(root, canvas),
     )
     reflect_btn.pack(side="top", pady=5, padx=2)
+
+    matrix_btn = tk.Button(
+        root,
+        width=PANEL_WIDTH,
+        height=2,
+        text="input transform matrix",
+        padx=50,
+        pady=10,
+        borderwidth=1,
+        relief="solid",
+        command=lambda: get_transform_matrix(root, canvas),
+    )
+    matrix_btn.pack(side="top", pady=5, padx=2)
+    
     zoom = tk.Scale(root, resolution=1, from_=5, to=50, orient=tk.HORIZONTAL)
     zoom.config(command=lambda v: update_slider_value(canvas, v))
     zoom.pack(side="top", padx=2, pady=5)
