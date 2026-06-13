@@ -98,7 +98,7 @@ def update_vector_on_canvas(canvas, v):
     )
 
 
-def draw_vector(canvas: tk.Canvas, v: Vector, color=None):
+def draw_vector_on_canvas(canvas: tk.Canvas, v: Vector, color=None):
 
     global colour_index
 
@@ -169,10 +169,10 @@ def create_vector(root, x_entry, y_entry, x_label, y_label, button, canvas):
     vector_btn.pack(side="top")
     vector_buttons.append(vector_btn)
 
-    draw_vector(canvas, v)
+    draw_vector_on_canvas(canvas, v)
 
 
-def add_vector_to_ui(root, canvas):
+def get_vector_components(root, canvas):
 
     x_label = tk.Label(root, text="x component")
     x_label.pack(side="top", pady=5)
@@ -394,7 +394,7 @@ def update_slider_value(canvas, slider_value):
     draw_coordinate_plane(canvas, draw_scale)
 
     for i, v in enumerate(Vector.all_vectors):
-        draw_vector(canvas, v, colors[i])
+        draw_vector_on_canvas(canvas, v, colors[i])
 
 def delete_vector(canvas):
     global selected_vector_idx,button_idx
@@ -414,88 +414,51 @@ def delete_vector(canvas):
     selected_vector_idx = None
     button_idx = len(Vector.all_vectors)
 
-def main():
-    root = tk.Tk()
-    root.title("Linear Algebra Visualizer")
-    root.geometry(f"{WIDTH}x{HEIGHT}")
-
-    canvas = tk.Canvas(root, width=WIDTH - PANEL_WIDTH, height=HEIGHT, bg="black")
-    canvas.pack(side="left", padx=2)
-
-    draw_coordinate_plane(canvas, DRAW_SCALE)
-
-    add = tk.Button(
-        root,
-        width=PANEL_WIDTH,
-        height=2,
-        text="create vector",
-        padx=50,
-        pady=10,
-        borderwidth=1,
-        relief="solid",
-        command=lambda: add_vector_to_ui(root, canvas),
-    )
-    add.pack(side="top", pady=5, padx=2)
-
-    delete_btn = tk.Button(
-        root,
-        width=PANEL_WIDTH,
-        height=2,
-        text="Delete vector",
-        padx=50,
-        pady=10,
-        borderwidth=1,
-        relief="solid",
-        command=lambda: delete_vector(canvas),
-    ) 
-
-    delete_btn.pack(side="top", pady=5, padx=2)
-
-    rotate_btn = tk.Button(
-        root,
-        width=PANEL_WIDTH,
-        height=2,
-        text="Rotate vector",
-        padx=50,
-        pady=10,
-        borderwidth=1,
-        relief="solid",
-        command=lambda: get_rotation_angle(root, canvas),
-    )
-    rotate_btn.pack(side="top", pady=5, padx=2)
-
-    scale_btn = tk.Button(
-        root,
-        width=PANEL_WIDTH,
-        height=2,
-        text="Scale vector",
-        padx=50,
-        pady=10,
-        borderwidth=1,
-        relief="solid",
-        command=lambda: get_scale_factor(root, canvas),
-    )
-    scale_btn.pack(side="top", pady=5, padx=2)
-
-    reflect_btn = tk.Button(
-        root,
-        width=PANEL_WIDTH,
-        height=2,
-        text="Reflect vector",
-        padx=50,
-        pady=10,
-        borderwidth=1,
-        relief="solid",
-        command=lambda: get_reflection_axis(root, canvas),
-    )
-    reflect_btn.pack(side="top", pady=5, padx=2)
-    zoom = tk.Scale(root, resolution=1, from_=5, to=50, orient=tk.HORIZONTAL)
-    zoom.config(command=lambda v: update_slider_value(canvas, v))
-    zoom.pack(side="top", padx=2, pady=5)
-    zoom.set(20)
-
-    root.mainloop()
 
 
-if __name__ == "__main__":
-    main()
+def process_input_matrix(canvas,root,matrix,transform_btn):
+
+    
+    
+    given_matrix=[] 
+    for i in range(2):
+        row=[]
+        for j in range(2):
+           row.append(float(matrix[i][j].get()))
+        given_matrix.append(row) 
+    
+    given_matrix=Matrix(given_matrix)
+    
+    matrix[0][0].master.destroy()
+    transform_btn.pack_forget()
+
+    transformed_vector=multiply_matrix_vector(Vector.all_vectors[selected_vector_idx],given_matrix)
+    
+    Vector.all_vectors[selected_vector_idx].components=transformed_vector.components[:]
+
+    update_vector_on_canvas(canvas,Vector.all_vectors[selected_vector_idx])
+
+def get_transform_matrix(root,canvas):
+
+    # Create a separate frame for the matrix to use grid geometry manager
+    matrix_frame = tk.Frame(root, bg="gray")
+    matrix_frame.pack(side="top", padx=5, pady=5)
+
+    matrix=[]
+
+    for i in range(2):
+        row=[]
+        for j in range(2):
+
+            element=tk.Entry(matrix_frame,width=5,justify="center")
+
+            element.grid(row=i,column=j, padx=10, pady=5)
+
+            row.append(element)
+
+        matrix.append(row)
+
+    transform_btn=tk.Button(matrix_frame,width=5,text="Enter")
+    transform_btn.grid(row=2, column=0, columnspan=2, pady=5)
+    transform_btn.config(command= lambda m=matrix: process_input_matrix(canvas,root,m,transform_btn)) 
+
