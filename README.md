@@ -7,13 +7,15 @@ An interactive desktop application for visualizing 2D vectors and linear transfo
 ## Features
 
 - **Vector Management** — Create and delete 2D vectors on a coordinate plane
-- **Transformations** — Apply common linear transformations to vectors interactively:
-  - Rotation by an arbitrary angle
+- **Multiselect** — Select multiple vectors simultaneously using Ctrl+Click or Shift+Click to apply transformations to all at once
+- **Transformations** — Apply common linear transformations to one or more vectors interactively:
+  - Rotation by an arbitrary angle (animated)
   - Scaling (independent x and y factors)
   - Reflection across the x-axis or y-axis
-  - Custom transformation matrix input
+  - Custom 2×2 transformation matrix input
 - **Zoom Control** — Adjustable zoom slider to inspect vectors at any scale
 - **Color-coded Vectors** — Each vector is rendered with a distinct color for easy identification
+- **Scrollable Vector List** — A styled listbox displays all vectors with color labels and supports scrolling when many vectors are present
 
 ---
 
@@ -21,12 +23,13 @@ An interactive desktop application for visualizing 2D vectors and linear transfo
 
 ```
 Linear_Algebra_Visulizer/
-├── main.py               # Entry point; builds the Tkinter UI and wires up controls
-├── renderer.py           # Canvas drawing — coordinate plane, vectors, UI helpers
-├── transformations.py    # Linear transformation logic (rotation, scale, reflect, shear)
-├── vector_math.py        # Vector class and operations (add, subtract, dot product, magnitude, normalize)
-├── matrix_math.py        # Matrix class and matrix–vector multiplication
-└── linear-algebra-visualizer-guide.pdf  # User guide
+├── main.py            # Entry point; builds the Tkinter UI and wires up controls
+├── state.py           # Shared constants and global state (colors, scale, counters)
+├── renderer.py        # Canvas drawing — coordinate plane, vectors
+├── ui_handlers.py     # UI event handlers — vector creation, transformation inputs, deletion
+├── transformations.py # Linear transformation logic (rotation, scale, reflect, shear)
+├── vector_math.py     # Vector class and operations (add, subtract, dot product, magnitude, normalize)
+└── matrix_math.py     # Matrix class and matrix–vector multiplication
 ```
 
 ---
@@ -60,18 +63,20 @@ python main.py
 | Control | Description |
 |---|---|
 | **Create Vector** | Enter x and y components to add a new vector to the canvas |
-| **Delete Vector** | Remove a selected vector from the canvas |
-| **Rotate Vector** | Rotate a vector by a specified angle (in degrees) |
-| **Scale Vector** | Scale a vector using independent x and y scale factors |
-| **Reflect Vector** | Reflect a vector across the x-axis or y-axis |
-| **Input Transform Matrix** | Apply any custom 2×2 transformation matrix to a vector |
+| **Delete Vector** | Select one or more vectors in the list, then click to remove them |
+| **Rotate Vector** | Select vectors, enter an angle (degrees), and watch the animated rotation |
+| **Scale Vector** | Scale selected vectors using independent x and y scale factors |
+| **Reflect Vector** | Reflect selected vectors across the x-axis or y-axis |
+| **Input Transform Matrix** | Apply any custom 2×2 transformation matrix to selected vectors |
 | **Zoom Slider** | Adjust the canvas scale from 5 to 50 units |
+| **Vector List** | Scrollable, color-coded list — Ctrl+Click or Shift+Click to multiselect |
 
 ---
 
 ## Math Overview
 
 ### Vector Operations (`vector_math.py`)
+
 - Addition and subtraction
 - Scalar multiplication
 - Dot product
@@ -102,7 +107,7 @@ Pull requests are welcome! If you'd like to add new transformations (e.g., proje
 
 ## License
 
-This project is open source. Add a `LICENSE` file to specify terms (MIT is a common choice).
+This project is open source.
 
 ---
 
