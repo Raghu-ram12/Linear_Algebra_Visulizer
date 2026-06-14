@@ -121,11 +121,10 @@ def start_rotation(canvas, entry_angle, label, rotate_btn,vector_list):
         angle = 0
         base_vector = Vector.all_vectors[idx]
         start_components = base_vector.components[:]
-        print(id(base_vector), start_components)  
-
+    
         animate_vector_rotation(
         canvas=canvas,
-        target_angle=validate_input(input_angle),
+        target_angle=input_angle,
         base_vector=base_vector,
         start_components=start_components,
         angle=0
@@ -174,7 +173,7 @@ def process_scale(canvas, text_scale_x, text_scale_y, x_label, y_label, scale_bt
     y_scale = text_scale_y.get().strip()
 
     if not x_scale or not y_scale:
-        print("Enter both scale values")
+        messagebox.showerror("Enter both scale values")
         return
     
     text_scale_x.pack_forget()
@@ -355,4 +354,34 @@ def delete_vector(canvas, vector_list):
         vector_list.insert(i, f"Vector {i + 1}")
         vector_list.itemconfig(i, fg=v.color)
 
-    button_idx = len(Vector.all_vectors)
+    button_idx = len(Vector.all_vectors)    
+
+def delete_resultant(canvas,resultant,delete_btn):
+
+    canvas.delete(resultant.vector_id) 
+    delete_btn.destroy()
+
+def vector_addition(root,canvas,vector_list):
+
+    global colour_index
+
+    selections=vector_list.curselection()
+    
+    if len(selections)!=2:
+        messagebox.showerror(title="Selection Error",message="Please select 2 vectors ")
+        return
+
+    v1=Vector.all_vectors[selections[0]]
+    v2=Vector.all_vectors[selections[1]]
+    resultant=add_vectors(v1,v2)
+    
+    color_to_use=canvas_colors[colour_index]
+    colour_index=(colour_index+1)%len(canvas_colors)
+    
+    resultant.color=color_to_use 
+    draw_vector_on_canvas(canvas,resultant,color_to_use)
+    delete_btn=tk.Button(root,text="delete resultant",width=8)
+
+    delete_btn.pack(side="top")
+    delete_btn.config(command=lambda : delete_resultant(canvas,resultant,delete_btn))
+    

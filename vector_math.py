@@ -14,6 +14,10 @@ class Vector:
 
 def add_vectors(a: Vector, b: Vector) -> Vector:
 
+    if not isinstance(a,Vector):
+        print("a is not a vector")
+        return 
+
     max_len = max(a.dim, b.dim)
     result = []
     for i in range(max_len):
@@ -21,7 +25,7 @@ def add_vectors(a: Vector, b: Vector) -> Vector:
         val_b = b.components[i] if b.dim else 0
         result.append(val_a + val_b)
 
-    return Vector(result)
+    return Vector(result,track=False)
 
 
 def sub_vectors(a: Vector, b: Vector) -> Vector:

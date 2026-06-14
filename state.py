@@ -2,7 +2,7 @@ HEIGHT = 800
 WIDTH = 1400
 PANEL_WIDTH = 200
 DRAW_SCALE = 20
-
+BUTTON_HEIGHT=1
 canvas_colors = [
     "crimson",
     "dodger blue",
@@ -15,6 +15,7 @@ canvas_colors = [
     "slate gray",
     "saddle brown",
 ]
+
 
 colour_index = 0
 vector_buttons = []

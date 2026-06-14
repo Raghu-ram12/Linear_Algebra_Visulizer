@@ -23,7 +23,7 @@ def main():
     add = tk.Button(
         root,
         width=PANEL_WIDTH,
-        height=2,
+        height=BUTTON_HEIGHT,
         text="create vector",
         padx=50,
         pady=10,
@@ -36,7 +36,7 @@ def main():
     delete_btn = tk.Button(
         root,
         width=PANEL_WIDTH,
-        height=2,
+        height=BUTTON_HEIGHT,
         text="Delete vector",
         padx=50,
         pady=10,
@@ -50,7 +50,7 @@ def main():
     rotate_btn = tk.Button(
         root,
         width=PANEL_WIDTH,
-        height=2,
+        height=BUTTON_HEIGHT,
         text="Rotate vector",
         padx=50,
         pady=10,
@@ -63,7 +63,7 @@ def main():
     scale_btn = tk.Button(
         root,
         width=PANEL_WIDTH,
-        height=2,
+        height=BUTTON_HEIGHT,
         text="Scale vector",
         padx=50,
         pady=10,
@@ -76,7 +76,7 @@ def main():
     reflect_btn = tk.Button(
         root,
         width=PANEL_WIDTH,
-        height=2,
+        height=BUTTON_HEIGHT,
         text="Reflect vector",
         padx=50,
         pady=10,
@@ -89,7 +89,7 @@ def main():
     matrix_btn = tk.Button(
         root,
         width=PANEL_WIDTH,
-        height=2,
+        height=BUTTON_HEIGHT,
         text="Input transform matrix",
         padx=50,
         pady=10,
@@ -98,6 +98,20 @@ def main():
         command=lambda: get_transform_matrix(root, canvas,vector_list),
     )
     matrix_btn.pack(side="top", pady=5, padx=2)
+
+    add_vectors_btn = tk.Button(
+        root,
+        width=PANEL_WIDTH,
+        height=BUTTON_HEIGHT,
+        text="add 2 vector",
+        padx=50,
+        pady=10,
+        borderwidth=1,
+        relief="solid",
+        command=lambda: vector_addition(root,canvas,vector_list),
+    )
+
+    add_vectors_btn.pack(side="top", pady=5, padx=2)
     zoom = tk.Scale(root, resolution=1, from_=5, to=50, orient=tk.HORIZONTAL)
     zoom.config(command=lambda v: update_slider_value(canvas, v))
     zoom.pack(side="top", padx=2, pady=5)
