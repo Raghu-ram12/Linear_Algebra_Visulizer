@@ -67,28 +67,7 @@ def Vector_angle(a: Vector, b: Vector):
     mag_b = magnitude(b)
     return math.acos(d / (mag_a * mag_b))
 
-def cross_product(a:Vector,b:Vector):
 
-    if a.dim!=3 or b.dim!=3:
-        pass 
-    
-    i_component=None
-    j_component=None
-    k_component=None
-
-    a_components=a.components
-    b_components=b.components
-
-
-    i_component=(a_components[1]*b_components[2])-(b_components[1]*a_components[2])
-
-    j_component=(a_components[0]*b_components[2])-(b_components[0]*a_components[2])
-
-    i_component=(a_components[0]*b_components[1])-(b_components[0]*a_components[1])
-    
-    return Vector([i_component,-j_component,k_component],track=False)
-    
- 
 def normalize(a: Vector) -> Vector:
 
     mag = magnitude(a)
