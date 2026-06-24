@@ -52,7 +52,7 @@ def rotate_vector_euler(v: Vector, gamma: float, beta: float, alpha: float) -> V
 
 def scale_vector(v: Vector, sx: float, sy: float,sz:float) -> Vector:
 
-    scale_matrix = Matrix([[sx, 0,0], [0, sy,0],[0.0,sz]])
+    scale_matrix = Matrix([[sx, 0,0], [0, sy,0],[0,0,sz]])
 
     return multiply_matrix_vector(v, scale_matrix)
 
