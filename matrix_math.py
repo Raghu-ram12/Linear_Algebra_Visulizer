@@ -130,36 +130,18 @@ def multiply_matrix_vector(v: Vector, m: Matrix) -> Vector:
     result = []
 
     for i in range(m.rows):
-
         result.append(
-            sum(round(m.data[i][j] * v.components[j], 4) for j in range(m.cols))
+            sum([round(v.components[j] * m.data[i][j], 4) for j in range(m.cols)])
         )
 
-    transformed = Vector(result, track=False)
+    transformed = Vector(result,track=False)
     transformed.vector_id = v.vector_id
     transformed.color = v.color
     return transformed
+
+   
 
 
 def determinant_2x2(m: Matrix) -> float:
 
     return m.data[0][0] * m.data[1][1] - (m.data[1][0] * m.data[0][1])
-
-
-def determinant_3X3(m: Matrix) -> float:
-
-    if m.shape != (3, 3):
-        raise ShapeMismatch("Please Give a 3x3 matrix")
-        return
-
-    matrix = m.data
-
-    a, b, c = matrix[0]
-    d, e, f = matrix[1]
-    g, h, i = matrix[2]
-
-    term1 = a * (e * i - f * h)
-    term2 = b * (d * i - f * g)
-    term3 = c * (d * h - e * g)
-
-    return term1 - term2 + term3
