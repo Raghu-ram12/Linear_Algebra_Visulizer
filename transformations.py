@@ -83,4 +83,3 @@ def reflect_on_planes(v:Vector,plane : str)->Vector:
         print("Invalid plane")
         return 
 
-    

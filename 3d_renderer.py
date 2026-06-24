@@ -4,6 +4,7 @@ import math
 from vector_math import *
 import transformations
 
+
 class Render:
 
     def __init__(self, height, width, canvas):
@@ -222,12 +223,19 @@ class UI(Render):
         new_vector_btn.config(command=lambda: self.render_vector_input_field())
         new_vector_btn.pack()
 
-        scale_vector_btn=tk.Button(self.frame,text="Scale Vector")
+        scale_vector_btn = tk.Button(self.frame, text="Scale Vector")
         scale_vector_btn.config(command=lambda: self.render_scale_input())
         scale_vector_btn.pack()
 
-        self.render_vector_list_box()
+        reflect_vector_btn = tk.Button(self.frame, text="Reflect Vector")
+        reflect_vector_btn.config(command=lambda: self.render_reflection_input())
+        reflect_vector_btn.pack() 
 
+        rotate_vector_btn = tk.Button(self.frame, text="Rotate Vector")
+        rotate_vector_btn.config(command=lambda: self.render_rotation_input())
+        rotate_vector_btn.pack()
+
+        self.render_vector_list_box()
         self.frame.pack(side="left", expand=True)
         self.canvas.pack(side="right", expand=True)
 
@@ -240,7 +248,7 @@ class UI(Render):
         if y_theta:
             self.theta_y = float(y_theta)
         if z_theta:
-            self.theta_x = float(z_theta)
+            self.theta_z = float(z_theta)
         self.redraw()
 
     def render_sliders(self):
@@ -274,12 +282,14 @@ class UI(Render):
 
         widgets = input_frame.winfo_children()
 
-        user_entry=widgets[2].get().strip()
-        self.vector_list.insert(tk.END,f"vector {len(Vector.all_vectors)}")
+        user_entry = widgets[2].get().strip()
+
         if user_entry:
-            comp=list(map(int,user_entry.split()))
-            v=Vector(comp)
+            comp = list(map(int, user_entry.split()))
+            v = Vector(comp)
             self.draw_vector_on_canvas(v)
+            self.vector_list.insert(tk.END, f"vector {len(Vector.all_vectors)}")
+            self.vector_list.itemconfig(tk.END, fg=v.color)
             input_frame.destroy()
 
     def render_vector_list_box(self):
@@ -307,54 +317,103 @@ class UI(Render):
         create_vector_btn.pack(fill=tk.X, padx=5, pady=2)
         input_frame.pack(fill=tk.X, padx=5, pady=5)
 
-    def update_vector(self,v:Vector,new_x,new_y):
+    def update_vector(self, v: Vector, new_x, new_y):
 
-        self.canvas.coords(v.vector_id,self.screen_origin[0],self.screen_origin[1],new_x,new_y) 
-    
+        self.canvas.coords(
+            v.vector_id, self.screen_origin[0], self.screen_origin[1], new_x, new_y
+        )
 
     def render_scale_input(self):
 
-        widgets=self.frame.winfo_children()
+        widgets = self.frame.winfo_children()
         widgets[2].config(state="disabled")
 
-        scale_frame=tk.Frame(self.frame,width=PANEL_WIDTH)
+        scale_frame = tk.Frame(self.frame, width=PANEL_WIDTH)
 
-        scale_label=tk.Label(scale_frame,text="Enter sx sy sz ")
+        scale_label = tk.Label(scale_frame, text="Enter sx sy sz ")
 
-        scale_input=tk.Entry(scale_frame)
+        scale_input = tk.Entry(scale_frame)
 
-        scale_btn=tk.Button(scale_frame,relief="solid",text="Scale") 
+        scale_btn = tk.Button(scale_frame, relief="solid", text="Scale")
 
-        scale_btn.config(command=lambda : self.scale_vector_on_canvas(scale_frame))
+        scale_btn.config(command=lambda: self.scale_vector_on_canvas(scale_frame))
 
-        scale_label.pack(fill=tk.X,padx=5,pady=2)
-        scale_input.pack(fill=tk.X,padx=5,pady=2)
-        scale_btn.pack(fill=tk.X,padx=5,pady=2)
+        scale_label.pack(fill=tk.X, padx=5, pady=2)
+        scale_input.pack(fill=tk.X, padx=5, pady=2)
+        scale_btn.pack(fill=tk.X, padx=5, pady=2)
 
         scale_frame.pack()
 
-    def scale_vector_on_canvas(self,scale_frame):
-        
-        widgets=self.frame.winfo_children()
+    def scale_vector_on_canvas(self, scale_frame):
+
+        widgets = self.frame.winfo_children()
         widgets[2].config(state="normal")
 
-        widgets=scale_frame.winfo_children()
+        widgets = scale_frame.winfo_children()
 
-        sx,sy,sz=map(float,widgets[1].get().strip().split())
-        
+        sx, sy, sz = map(float, widgets[1].get().strip().split())
+
         for idx in self.vector_list.curselection():
 
-            v=Vector.all_vectors[idx]
+            v = Vector.all_vectors[idx]
 
-            new_v=transformations.scale_vector(v,sx,sy,sz) 
+            new_v = transformations.scale_vector(v, sx, sy, sz)
 
-            v.components=new_v.components
-           
-            new_cords=self.isometric_projection_screen(v.components[0],v.components[1],v.components[2])
+            v.components = new_v.components
 
-            self.update_vector(v,new_cords[0],new_cords[1])
+            new_cords = self.isometric_projection_screen(
+                v.components[0], v.components[1], v.components[2]
+            )
+
+            self.update_vector(v, new_cords[0], new_cords[1])
 
         scale_frame.destroy()
+
+    def render_rotation_input(self):
+
+        widgets = self.frame.winfo_children()
+        widgets[4].config(state="disabled")
+
+        rotation_frame = tk.Frame(self.frame, width=PANEL_WIDTH)
+
+        rotation_label = tk.Label(rotation_frame, text="Rotate: axis angle (x 45)")
+        rotation_input = tk.Entry(rotation_frame)
+
+        rotation_btn = tk.Button(rotation_frame, relief="solid", text="Rotate")
+        rotation_btn.config(command=lambda: self.rotate_vector_on_canvas(rotation_frame))
+
+        rotation_label.pack(fill=tk.X, padx=5, pady=2)
+        rotation_input.pack(fill=tk.X, padx=5, pady=2)
+        rotation_btn.pack(fill=tk.X, padx=5, pady=2)
+
+        rotation_frame.pack()
+
+    def rotate_vector_on_canvas(self, rotation_frame):
+
+        widgets = self.frame.winfo_children()
+        widgets[4].config(state="normal")
+
+        widgets = rotation_frame.winfo_children()
+
+        user_input = widgets[1].get().strip().split()
+        axis = user_input[0].lower()
+        angle = float(user_input[1])
+
+        for idx in self.vector_list.curselection():
+
+            v = Vector.all_vectors[idx]
+
+            new_v = transformations.rotate_vector_about_axis(v, angle, axis)
+
+            v.components = new_v.components
+
+            new_cords = self.isometric_projection_screen(
+                v.components[0], v.components[1], v.components[2]
+            )
+
+            self.update_vector(v, new_cords[0], new_cords[1])
+
+        rotation_frame.destroy()
 
     def redraw(self, grid=True):
         self._update_trig()
@@ -365,7 +424,43 @@ class UI(Render):
 
             self.draw_vector_on_canvas(v)
 
+    def reflect_vector_on_canvas(self, input_frame):
+        
+        widgets=self.frame.winfo_children()
+
+        widgets[3].config(state="active")
+
+        widgets = input_frame.winfo_children()
+        plane = widgets[1].get().strip()
+
+        for idx in self.vector_list.curselection():
+
+            v = Vector.all_vectors[idx]
+
+            new_v = transformations.reflect_on_planes(v, plane)
+
+            v.components = new_v.components
+
+            new_cords = self.isometric_projection_screen(
+                v.components[0], v.components[1], v.components[2]
+            )
+            self.update_vector(v, new_cords[0], new_cords[1])
+
+    def render_reflection_input(self):
+
+        widgets=self.frame.winfo_children()
+        widgets[3].config(state="active")
+        input_frame = tk.Frame(self.frame, width=PANEL_WIDTH)
+        label = tk.Label(input_frame, text="enter reflection plane")
+        user_axis = tk.Entry(input_frame)
+        reflect_btn = tk.Button(input_frame, relief="solid", text="Reflect")
+        label.pack()
+        user_axis.pack()
+        reflect_btn.pack()
+        reflect_btn.config(command=lambda: self.reflect_vector_on_canvas(input_frame))
+        input_frame.pack()
+
 
 app = UI(HEIGHT, WIDTH)
-app.projection = "orthographic"
+app.projection = "isometric"
 app.build_ui()
