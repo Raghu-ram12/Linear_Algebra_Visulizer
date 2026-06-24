@@ -118,7 +118,7 @@ def identity_matrix(n: int) -> Matrix:
 
 
 def multiply_matrix_vector(v: Vector, m: Matrix) -> Vector:
-    if v is None or m is None or not isinstance(v,Vector):
+    if v is None or m is None:
         print("invalid input")
         return None
 
